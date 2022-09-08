@@ -3,8 +3,8 @@
 namespace App\Controller\Api;
 
 use App\Entity\Categorias;
+use App\Form\Type\CatagoriaFormType;
 use App\Repository\CategoriasRepository;
-use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityManagerInterface;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
 use FOS\RestBundle\Controller\Annotations as Rest;
@@ -39,9 +39,16 @@ class CategoriasController extends AbstractFOSRestController
      */
     public function createCategoria(Request $request){
         $categoria = new Categorias();
-        $categoria->setCategoria($request->get("categoria"));
-        $this->em->persist($categoria);
-        $this->em->flush();
-        return $categoria;
+
+        $form = $this->createForm(CatagoriaFormType::class, $categoria);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $this->em->persist($categoria);
+            $this->em->flush();
+            return $categoria;
+        }
+
+        return $form;
     }
 }
